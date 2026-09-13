@@ -80,6 +80,9 @@ protected:
 
 	/** Set up input action bindings */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
+	/** ‚ ‚Æ‚©‚ç */
+	void Fire();
 	
 
 public:
@@ -91,4 +94,3 @@ public:
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 };
-

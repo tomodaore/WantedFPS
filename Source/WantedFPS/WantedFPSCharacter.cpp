@@ -9,6 +9,9 @@
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "WantedFPS.h"
+#include "CurveBullet.h"
+#include "InputCoreTypes.h"
+
 
 AWantedFPSCharacter::AWantedFPSCharacter()
 {
@@ -64,6 +67,13 @@ void AWantedFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 	{
 		UE_LOG(LogWantedFPS, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+
+	PlayerInputComponent->BindKey(
+		EKeys::LeftMouseButton,
+		IE_Pressed,
+		this,
+		&AWantedFPSCharacter::Fire
+	);
 }
 
 
@@ -117,4 +127,36 @@ void AWantedFPSCharacter::DoJumpEnd()
 {
 	// pass StopJumping to the character
 	StopJumping();
+}
+
+void AWantedFPSCharacter::Fire()
+{
+	UCameraComponent* Camera = FindComponentByClass<UCameraComponent>();
+
+	if (!Camera || !GetWorld())
+	{
+		return;
+	}
+
+	const FVector SpawnLocation =
+		Camera->GetComponentLocation()
+		+ Camera->GetForwardVector() * 100.0f;
+
+	const FRotator SpawnRotation =
+		Camera->GetComponentRotation();
+
+	FActorSpawnParameters SpawnParams;
+
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+
+	SpawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	GetWorld()->SpawnActor<ACurveBullet>(
+		ACurveBullet::StaticClass(),
+		SpawnLocation,
+		SpawnRotation,
+		SpawnParams
+	);
 }
