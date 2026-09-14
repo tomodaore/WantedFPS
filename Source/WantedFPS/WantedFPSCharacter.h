@@ -83,7 +83,20 @@ protected:
 
 	/** ‚ ‚Æ‚©‚ç */
 	void Fire();
-	
+
+	void StartCurveCharge();
+	void StopCurveCharge();
+
+	float GetCurveChargeTime() const;
+
+	bool bIsCurveCharging = false;
+
+	float CurveChargeStartTime = 0.0f;
+
+	void SetCurveLeft();
+	void SetCurveRight();
+
+	float CurveDirection = 1.0f;
 
 public:
 

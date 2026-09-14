@@ -74,6 +74,34 @@ void AWantedFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		this,
 		&AWantedFPSCharacter::Fire
 	);
+
+	PlayerInputComponent->BindKey(
+		EKeys::RightMouseButton,
+		IE_Pressed,
+		this,
+		&AWantedFPSCharacter::StartCurveCharge
+	);
+
+	PlayerInputComponent->BindKey(
+		EKeys::RightMouseButton,
+		IE_Released,
+		this,
+		&AWantedFPSCharacter::StopCurveCharge
+	);
+
+	PlayerInputComponent->BindKey(
+		EKeys::Q,
+		IE_Pressed,
+		this,
+		&AWantedFPSCharacter::SetCurveLeft
+	);
+
+	PlayerInputComponent->BindKey(
+		EKeys::E,
+		IE_Pressed,
+		this,
+		&AWantedFPSCharacter::SetCurveRight
+	);
 }
 
 
@@ -153,10 +181,97 @@ void AWantedFPSCharacter::Fire()
 	SpawnParams.SpawnCollisionHandlingOverride =
 		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	GetWorld()->SpawnActor<ACurveBullet>(
+	ACurveBullet* Bullet = GetWorld()->SpawnActor<ACurveBullet>(
 		ACurveBullet::StaticClass(),
 		SpawnLocation,
 		SpawnRotation,
 		SpawnParams
 	);
+
+	if (!Bullet)
+	{
+		return;
+	}
+
+	// カーブの最大チャージ時間
+	const float MaxChargeTime = 0.5f;
+
+	float CurveStrength = 0.0f;
+
+	if (bIsCurveCharging)
+	{
+		const float ChargeTime = GetCurveChargeTime();
+
+		CurveStrength = FMath::Clamp(
+			ChargeTime / MaxChargeTime,
+			0.0f,
+			1.0f
+		);
+	}
+
+	Bullet->SetCurveStrength(CurveStrength);
+	Bullet->SetCurveDirection(CurveDirection);
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("Fire - CurveStrength: %.2f"),
+		CurveStrength
+	);
+}
+
+void AWantedFPSCharacter::StartCurveCharge()
+{
+	if (!GetWorld())
+	{
+		return;
+	}
+
+	bIsCurveCharging = true;
+	CurveChargeStartTime = GetWorld()->GetTimeSeconds();
+
+	UE_LOG(LogTemp, Warning, TEXT("Curve charge started"));
+}
+
+void AWantedFPSCharacter::StopCurveCharge()
+{
+	if (!bIsCurveCharging)
+	{
+		return;
+	}
+
+	const float ChargeTime = GetCurveChargeTime();
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("Curve charge stopped: %.2f sec"),
+		ChargeTime
+	);
+
+	bIsCurveCharging = false;
+}
+
+float AWantedFPSCharacter::GetCurveChargeTime() const
+{
+	if (!bIsCurveCharging || !GetWorld())
+	{
+		return 0.0f;
+	}
+
+	return GetWorld()->GetTimeSeconds() - CurveChargeStartTime;
+}
+
+void AWantedFPSCharacter::SetCurveLeft()
+{
+	CurveDirection = -1.0f;
+
+	UE_LOG(LogTemp, Warning, TEXT("Curve Direction: Left"));
+}
+
+void AWantedFPSCharacter::SetCurveRight()
+{
+	CurveDirection = 1.0f;
+
+	UE_LOG(LogTemp, Warning, TEXT("Curve Direction: Right"));
 }
