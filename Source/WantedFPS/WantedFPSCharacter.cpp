@@ -230,6 +230,14 @@ void AWantedFPSCharacter::StartCurveCharge()
 	bIsCurveCharging = true;
 	CurveChargeStartTime = GetWorld()->GetTimeSeconds();
 
+	if (CurveDirection == -1.0f && CurveLeftChargeMontage && FirstPersonMesh)
+	{
+		if (UAnimInstance* FirstPersonAnimInstance = FirstPersonMesh->GetAnimInstance())
+		{
+			FirstPersonAnimInstance->Montage_Play(CurveLeftChargeMontage);
+		}
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Curve charge started"));
 }
 

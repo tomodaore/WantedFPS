@@ -11,6 +11,7 @@ class UInputComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
 class UInputAction;
+class UAnimMontage;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -92,6 +93,10 @@ protected:
 	bool bIsCurveCharging = false;
 
 	float CurveChargeStartTime = 0.0f;
+
+	/** Montage played on the first person mesh when starting a left curve charge. */
+	UPROPERTY(EditDefaultsOnly, Category="Curve Charge|Animation")
+	UAnimMontage* CurveLeftChargeMontage;
 
 	void SetCurveLeft();
 	void SetCurveRight();
